@@ -5,9 +5,9 @@ import vm from 'node:vm';
 import { lessons } from '../src/curriculum.ts';
 import { compilerOptions, transpile } from '../src/compiler.ts';
 
-test('Each track has fifteen distinct, usable lessons', () => {
-  assert.equal(new Set(lessons.map(l => l.id)).size, 45);
-  for (const track of ['js','ts','react']) assert.equal(lessons.filter(l=>l.track===track).length,15);
+test('Each track has sixteen distinct, usable lessons including JWT', () => {
+  assert.equal(new Set(lessons.map(l => l.id)).size, 48);
+  for (const track of ['js','ts','react']) assert.equal(lessons.filter(l=>l.track===track).length,16);
   for (const lesson of lessons) { assert.ok(lesson.theory.length >= 3); assert.ok(lesson.checks.length > 0); assert.ok(lesson.starter !== lesson.solution); }
 });
 test('Existing lesson IDs and their ordering remain compatible with saved progress',()=>{
