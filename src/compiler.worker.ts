@@ -6,15 +6,15 @@ const files: Record<string, string> = {};
 for (const [path, content] of Object.entries(rawLibraries)) files['/lib/' + path.split('/').pop()] = content as string;
 for (const [path, content] of Object.entries(rawTypes)) files[path.replace('..', '')] = content as string;
 const sources = new Map<string, ts.SourceFile>();
-self.onmessage = (event: MessageEvent<{ id: number; code: string; mode: string }>) => {
-  const { id, code, mode } = event.data;
+self.onmessage = (event: MessageEvent<{ id: number; code: string; mode: string; typeChecks?: string }>) => {
+  const { id, code, mode, typeChecks = '' } = event.data;
   try {
     const filename = mode === 'react' ? '/App.tsx' : mode === 'ts' ? '/main.ts' : '/main.js';
     const result = transpile(code, filename);
     let diagnostics = result.diagnostics ?? [];
     if (mode !== 'js') {
       const options = { ...compilerOptions, noEmit: true, types: ['react', 'react-dom'] };
-      const current = `${code}\nexport {};`;
+      const current = `${code}\n${typeChecks}\nexport {};`;
       const readFile = (path: string) => path === filename ? current : files[path];
       const host: ts.CompilerHost = {
         getSourceFile: (path, languageVersion) => {
@@ -47,7 +47,8 @@ self.onmessage = (event: MessageEvent<{ id: number; code: string; mode: string }
     }
     const formatted = diagnostics.filter(d => d.category === ts.DiagnosticCategory.Error).map(d => {
       const location = d.file && d.start !== undefined ? d.file.getLineAndCharacterOfPosition(d.start) : undefined;
-      return { message: ts.flattenDiagnosticMessageText(d.messageText, '\n'), line: location ? location.line + 1 : undefined, column: location ? location.character + 1 : undefined };
+      const exerciseTypeCheck = Boolean(typeChecks && location && location.line >= code.split('\n').length);
+      return { message: (exerciseTypeCheck ? 'Проверка типов задания: ' : '') + ts.flattenDiagnosticMessageText(d.messageText, '\n'), line: !exerciseTypeCheck && location ? location.line + 1 : undefined, column: !exerciseTypeCheck && location ? location.character + 1 : undefined };
     });
     self.postMessage({ id, output: result.outputText, diagnostics: formatted });
   } catch (error) { self.postMessage({ id, output: '', diagnostics: [{ message: String(error) }] }); }

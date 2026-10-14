@@ -5,11 +5,30 @@ import vm from 'node:vm';
 import { lessons } from '../src/curriculum.ts';
 import { compilerOptions, transpile } from '../src/compiler.ts';
 
-test('Each track has six distinct, usable lessons', () => {
-  assert.equal(new Set(lessons.map(l => l.id)).size, 18);
-  for (const track of ['js','ts','react']) assert.equal(lessons.filter(l=>l.track===track).length,6);
+test('Each track has fifteen distinct, usable lessons', () => {
+  assert.equal(new Set(lessons.map(l => l.id)).size, 45);
+  for (const track of ['js','ts','react']) assert.equal(lessons.filter(l=>l.track===track).length,15);
   for (const lesson of lessons) { assert.ok(lesson.theory.length >= 3); assert.ok(lesson.checks.length > 0); assert.ok(lesson.starter !== lesson.solution); }
 });
+test('Existing lesson IDs and their ordering remain compatible with saved progress',()=>{
+  const original = {
+    js:['js-values','js-functions','js-arrays','js-objects','js-dom','js-async'],
+    ts:['ts-basics','ts-interfaces','ts-unions','ts-generics','ts-utilities','ts-result'],
+    react:['react-components','react-props','react-state','react-lists','react-forms','react-effects'],
+  };
+  for(const [track,ids] of Object.entries(original)) assert.deepEqual(lessons.filter(l=>l.track===track).slice(0,6).map(l=>l.id),ids);
+});
+for (const id of ['ts-mapped','ts-conditional','ts-infer','ts-satisfies']) {
+  test(`${id}: incorrect type-only starter is rejected by the assignment contract`,()=>{
+    const lesson=lessons.find(l=>l.id===id);
+    const filename=`${process.cwd()}/src/__type_test__.ts`;
+    const host=ts.createCompilerHost(compilerOptions);
+    const original=host.getSourceFile;
+    host.getSourceFile=(path,version,...rest)=>path===filename?ts.createSourceFile(path,lesson.starter+'\n'+lesson.typeChecks+'\nexport {};',version,true):original(path,version,...rest);
+    const errors=ts.getPreEmitDiagnostics(ts.createProgram([filename],{...compilerOptions,noEmit:true},host)).filter(d=>d.category===ts.DiagnosticCategory.Error);
+    assert.ok(errors.length>0,'Type checks must reject the starter even if its runtime output is valid');
+  });
+}
 for (const lesson of lessons) {
   test(`${lesson.id}: starter and solution compile`, () => {
     const filename = `${process.cwd()}/src/__exercise__.${lesson.track === 'react' ? 'tsx' : lesson.track}`;
@@ -19,7 +38,8 @@ for (const lesson of lessons) {
       if (lesson.track !== 'js') {
         const host = ts.createCompilerHost(compilerOptions);
         const original = host.getSourceFile;
-        host.getSourceFile = (path, version, ...rest) => path === filename ? ts.createSourceFile(path,code+'\nexport {};',version,true) : original(path,version,...rest);
+        const typeChecks = label === 'solution' ? (lesson.typeChecks ?? '') : '';
+        host.getSourceFile = (path, version, ...rest) => path === filename ? ts.createSourceFile(path,code+'\n'+typeChecks+'\nexport {};',version,true) : original(path,version,...rest);
         const program = ts.createProgram([filename],{...compilerOptions,noEmit:true},host);
         const errors = ts.getPreEmitDiagnostics(program).filter(d=>d.category === ts.DiagnosticCategory.Error);
         assert.deepEqual(errors.map(d=>ts.flattenDiagnosticMessageText(d.messageText,'\n')),[],label);

@@ -11,3 +11,6 @@
 @media(max-width:1250px){.lesson-content p{font-size:11px}.lesson-content h2{font-size:18px}.lesson-list button{font-size:10px}}
 @media(max-width:1050px){.course-lessons{min-height:0}.lesson-content p{font-size:12px}.theory-example{display:block}.lesson-content h2{font-size:20px}.lesson-list button{font-size:9px}}
 @media(max-width:760px){.lesson-heading p{font-size:10px}.lesson-content p{font-size:13px}.lesson-content h2{font-size:20px}.lesson-content{max-height:270px}.lesson-panel{max-height:410px}.lesson-list button{font-size:11px}}
+.lesson-list{max-height:clamp(200px,34dvh,400px);overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:#d4ddd7 transparent}
+.lesson-list-label{position:sticky;top:0;background:white;z-index:1;padding-top:5px}
+.lesson-group-label{color:#a0afa4;font-size:8px;font-weight:750;letter-spacing:.5px;padding:11px 8px 5px;text-transform:uppercase}
