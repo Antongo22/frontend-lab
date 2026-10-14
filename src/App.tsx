@@ -141,7 +141,7 @@ export default function App() {
   const reset = () => { if (window.confirm('Вернуть исходный код, CSS и HTML? Текущие изменения этого примера будут заменены.')) setStore(current=>{ const drafts = { ...current.drafts }; delete drafts[draftKey]; return { ...current, drafts }; }); };
   return <div className={`app-shell ${focus ? 'focus-mode' : ''}`}>
     <aside className={`sidebar ${sidebar ? 'is-open' : ''}`}>
-      <a className="brand" href="#" onClick={event=>{event.preventDefault();setPage('lab');}}><span className="brand-mark"><Code2 size={22}/></span><span>frontend<span className="brand-light">lab</span><small>УЧИСЬ ЧЕРЕЗ КОД</small></span></a>
+      <a className="brand" href="#" onClick={event=>{event.preventDefault();setPage('lab');}}><span className="brand-mark"><img src="/favicon.svg" alt="" width="36" height="36"/></span><span>frontend<span className="brand-light">lab</span><small>УЧИСЬ ЧЕРЕЗ КОД</small></span></a>
       <div className="side-caption">ТВОЁ ПРОСТРАНСТВО</div>
       <nav className="primary-nav" aria-label="Главная навигация">
         <button className={page === 'lab' && !sandbox ? 'active' : ''} onClick={()=>{setPage('lab');setSandbox(null);setSidebar(false);}}><BookOpen size={18}/>Практикум<span className="nav-dot"/></button>

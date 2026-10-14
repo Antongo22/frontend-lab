@@ -14,3 +14,5 @@
 .lesson-list{max-height:clamp(200px,34dvh,400px);overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:#d4ddd7 transparent}
 .lesson-list-label{position:sticky;top:0;background:white;z-index:1;padding-top:5px}
 .lesson-group-label{color:#a0afa4;font-size:8px;font-weight:750;letter-spacing:.5px;padding:11px 8px 5px;text-transform:uppercase}
+
+.brand-mark{background:transparent;overflow:hidden;flex-shrink:0}.brand-mark img{display:block;width:100%;height:100%;object-fit:contain}
